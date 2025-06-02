@@ -1,13 +1,25 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-import re
-import json
+import pandas as pd
 from datetime import datetime
+from pymongo import MongoClient
 from backend.recSys import recommend_recipes, nettoyer_ingredients # Importer la fonction de recommandation
 
 app = Flask(__name__)
 CORS(app)  
 
+client = MongoClient("mongodb://localhost:27017/")
+# Accéder à la base et à la collection
+db = client["food_db"]
+collection = db["products"]
+
+# Charger les documents MongoDB dans un DataFrame pandas
+data = list(collection.find())  # retourne une liste de dictionnaires
+df = pd.DataFrame(data)
+
+# Supprimer l'_id automatique si nécessaire
+if '_id' in df.columns:
+    df = df.drop(columns=['_id'])
 
 @app.route('/')
 def index():

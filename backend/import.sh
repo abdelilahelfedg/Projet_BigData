@@ -6,7 +6,7 @@ mongoimport \
   --db food_db \
   --collection products \
   --type csv \
-  --file ./Food_Products.csv \
+  --file Food_Products.csv \
   --headerline
 
 echo "✅ Importation terminée."
