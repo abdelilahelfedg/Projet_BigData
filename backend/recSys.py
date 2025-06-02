@@ -3,7 +3,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from pymongo import MongoClient
 
+# Créer le client Mongodb
 client = MongoClient("mongodb://localhost:27017/")
+
 # Accéder à la base et à la collection
 db = client["food_db"]
 collection = db["products"]
@@ -15,9 +17,6 @@ df = pd.DataFrame(data)
 # Supprimer l'_id automatique si nécessaire
 if '_id' in df.columns:
     df = df.drop(columns=['_id'])
-    
-# Charger les données
-# df = pd.read_csv("backend/Food_Products.csv")
 
 # Nettoyer les données : on garde les lignes non nulles
 df = df.dropna(subset=['product_name', 'ingredients_main_text_only', 'countrie'])

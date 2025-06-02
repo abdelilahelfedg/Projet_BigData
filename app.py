@@ -8,19 +8,6 @@ from backend.recSys import recommend_recipes, nettoyer_ingredients # Importer la
 app = Flask(__name__)
 CORS(app)  
 
-client = MongoClient("mongodb://localhost:27017/")
-# Accéder à la base et à la collection
-db = client["food_db"]
-collection = db["products"]
-
-# Charger les documents MongoDB dans un DataFrame pandas
-data = list(collection.find())  # retourne une liste de dictionnaires
-df = pd.DataFrame(data)
-
-# Supprimer l'_id automatique si nécessaire
-if '_id' in df.columns:
-    df = df.drop(columns=['_id'])
-
 @app.route('/')
 def index():
     """Servir la page principale"""
@@ -38,7 +25,10 @@ def chat():
             return jsonify({'error': 'Message vide et aucun ingrédient fourni'}), 400
         
         if not ingredients and user_message:
+            # Nettoyer et transformer en liste
             ingredients = nettoyer_ingredients(user_message)
+            if isinstance(ingredients, str):
+                ingredients = [i.strip() for i in ingredients.split(",") if i.strip()]
         
         if ingredients:
             recommendations_df = recommend_recipes(ingredients)
@@ -47,12 +37,12 @@ def chat():
             suggestions = ""
             for rec in recommendations[:5]:
                 suggestions += f"🥣 {rec['product_name']}\n" + "-" * 60 + "\n"
-            bot_response = (
-                f"""Voici {len(recommendations)} produits recommandés pour vous ! Vous pouvez les utiliser pour préparer vos plats. Voici quelques suggestions : """)
+            # bot_response = (
+            #     f"""Voici {len(recommendations)} produits recommandés pour vous ! Vous pouvez les utiliser pour préparer vos plats. Voici quelques suggestions : """)
             
         else:
             recommendations = []
-            bot_response = "Je n'ai pas pu identifier d'ingrédients spécifiques. Pouvez-vous me dire quels ingrédients vous avez ? Par exemple : 'J'ai des tomates, du basilic et de l'ail'."
+            # bot_response = "Je n'ai pas pu identifier d'ingrédients spécifiques. Pouvez-vous me dire quels ingrédients vous avez ? Par exemple : 'J'ai des tomates, du basilic et de l'ail'."
         
         return jsonify({
             # 'bot_response': bot_response,
